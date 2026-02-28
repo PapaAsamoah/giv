@@ -28,25 +28,28 @@
         }
 
         /* Shaded Header for Logo */
-        header {
-            background-color: var(--header-shade);
-            border-bottom: 5px solid var(--border);
-            padding: 5px 0;
-            text-align: center;
+        .header {
+            min-height: 40vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #f9f9f9;
+            border-bottom: 1px solid #eee;
+            padding: 60px 20px;
         }
 
         .logo {
-            width: 100px;
+            width: 180px;
+            margin-bottom: 40px;
+            transition: transform 0.3s ease;
             display: block;
             margin: 0 auto;
             filter: grayscale(100%);
         }
 
-        .logo {
-            width: 200px; /* Increase this number to your liking */
-            display: block;
-            margin: 0 auto;
-            filter: grayscale(100%);
+        .logo:hover {
+            transform: scale(1.5);
         }
 
         .container {
@@ -82,9 +85,12 @@
 
         /* Search Section */
         .search-box {
-            background: var(--light-grey);
-            padding: 40px;
-            border: 1px solid var(--border);
+            background: white;
+            padding: 50px;
+            margin-top: -60px;
+            border: none;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-radius: 8px;
         }
 
         #question {
@@ -177,6 +183,30 @@
             border: 1px solid var(--black);
             padding: 20px;
         }
+
+        .cursor {
+            pointer-events: none;
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background-color: var(--black);
+            border-radius: 50%;
+            z-index: 9999;
+            mix-blend-mode: difference; /* This makes it turn white on black backgrounds */
+            transition: transform 0.3s ease;
+            transform: translate(-50%, -50%);
+            background-color: white; /* Contrast color */
+        }
+
+        .hover-this {
+            display: inline-block;
+            transition: transform 0.2s outset;
+        }
+
+/* When the cursor is over the trigger, it scales up */
+        .cursor-active {
+            transform: translate(-50%, -50%) scale(4);
+        }
     </style>
 </head>
 <body>
@@ -185,19 +215,28 @@
         <img src="{{ url_for('static', filename='giv-logo.png') }}" alt="GIV Logo" class="logo">
     </header>
 
+
+
     <div class="container">
         <div class="typewriter-wrapper">
             <h1 id="typewriter-text"></h1>
         </div>
 
         <div class="search-box">
-            <input type="text" 
-                   id="question" 
-                   placeholder="Enter an organization or opportunity...">
+                <span class="hover-this" style="width: 100%;">
+                <input type="text" 
+                    id="question" 
+                    placeholder="Enter an organization or opportunity...">
+            </span>
+
             <div class="btn-container">
-                <button onclick="askAI()">Search</button>
+                <span class="hover-this">
+                    <button onclick="askAI()">Search</button>
+                </span>
             </div>
         </div>
+
+        <div class="cursor"></div>
 
         <div id="answer"></div>
     </div>
@@ -210,6 +249,41 @@
         let isDeleting = false;
         const typeTarget = document.getElementById("typewriter-text");
 
+        (function () {
+            const cursor = document.querySelector('.cursor');
+            const links = document.querySelectorAll('.hover-this');
+
+            const editCursor = e => {
+                const { clientX: x, clientY: y } = e;
+                cursor.style.left = x + 'px';
+                cursor.style.top = y + 'px';
+            };
+
+            const animateit = function (e) {
+                const btn = this.querySelector('button');
+                const { offsetX: x, offsetY: y } = e;
+                const { offsetWidth: width, offsetHeight: height } = this;
+
+                const move = 15;
+                const xMove = x / width * (move * 2) - move;
+                const yMove = y / height * (move * 2) - move;
+
+                btn.style.transform = `translate(${xMove}px, ${yMove}px)`;
+                cursor.classList.add('cursor-active');
+
+                if (e.type === 'mouseleave') {
+                    btn.style.transform = '';
+                    cursor.classList.remove('cursor-active');
+                }
+            };
+
+    window.addEventListener('mousemove', editCursor);
+    links.forEach(b => {
+        b.addEventListener('mousemove', animateit);
+        b.addEventListener('mouseleave', animateit);
+    });
+})();
+        
         function type() {
             const currentWord = words[wordIndex];
             
