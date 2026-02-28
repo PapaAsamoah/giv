@@ -5,12 +5,14 @@ from google import genai
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify
 
+# Load environment variables
 load_dotenv('/Users/noahangus/Comservice/.env')
 
 app = Flask(__name__)
 
+# API key setup
 api_key = os.environ.get("GEMINI_API_KEY")
-print(f"✅ API Key loaded: {api_key[:20]}...")
+print(f"API Key loaded: {api_key[:20]}...")
 
 client = genai.Client(api_key=api_key)
 
@@ -18,17 +20,21 @@ client = genai.Client(api_key=api_key)
 def home():
     return render_template('index.html')
 
+
 @app.route('/ask', methods=['POST'])
 def ask_ai():
-    user_question = request.json.get('question')
+    user_question = request.json.get('question', '').strip()
     
-    # Prompt Gemini to return JSON
+    if not user_question:
+        return jsonify({'success': False, 'error': 'No question provided.'})
+
     formatted_prompt = f"""
-Find community service opportunities related to: {user_question}
+Find community service opportunities near the user related to: {user_question}
 
 Return at least 3 opportunities if possible.
 
-Return ONLY valid JSON in this exact format (no markdown, no extra text):
+Return ONLY valid JSON. Do NOT include markdown, backticks, or extra text.
+Use this exact format:
 {{
   "opportunities": [
     {{
@@ -40,60 +46,31 @@ Return ONLY valid JSON in this exact format (no markdown, no extra text):
     }}
   ]
 }}
-
-Only return JSON, nothing else.
 """
-
-    
     try:
-        # Get response from Gemini
+        # Call Gemini API
         response = client.models.generate_content(
             model="models/gemini-2.5-flash",
             contents=formatted_prompt
         )
-        
-        # Clean up the response text
         response_text = response.text.strip()
-        
-        # Remove markdown code blocks if present
-        if '```json' in response_text:
-            response_text = re.search(r'```json\s*(\{.*?\})\s*```', response_text, re.DOTALL)
-            if response_text:
-                response_text = response_text.group(1)
-        elif '```' in response_text:
-            response_text = re.search(r'```\s*(\{.*?\})\s*```', response_text, re.DOTALL)
-            if response_text:
-                response_text = response_text.group(1)
-        
-        # Parse JSON
+
+        # Attempt to extract JSON from response
+        match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        cleaned_json = match.group(0) if match else response_text
+
         try:
-            data = json.loads("opportunities")
-            
-            print("✅ Successfully parsed JSON:")
-            print(json.dumps(data, indent=2))
-            
-            return jsonify({
-                'success': True,
-                'data': data
-            })
-            
-        except json.JSONDecodeError as e:
-            print(f"❌ JSON Parse Error: {e}")
-            print(f"Response was: {response_text[:200]}")
-            
-            # Fallback: return raw text
-            return jsonify({
-                'success': True,
-                'answer': response.text,
-                'parse_error': True
-            })
-    
+            # Parse JSON safely
+            data = json.loads(cleaned_json)
+            return jsonify({'success': True, 'data': data})
+        except json.JSONDecodeError:
+            # Return raw text if JSON parsing fails
+            return jsonify({'success': True, 'answer': response_text, 'parse_error': True})
+
     except Exception as e:
-        print(f"❌ API Error: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        })
+        print(f"API Error: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
