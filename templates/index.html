@@ -25,17 +25,18 @@
             background-color: var(--white);
             color: var(--black);
             line-height: 1.6;
+            cursor: none; /* Hide default cursor for magnetic effect */
         }
 
         /* Shaded Header for Logo */
-        .header {
+        header {
             min-height: 40vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: #f9f9f9;
-            border-bottom: 1px solid #eee;
+            background: var(--header-shade);
+            border-bottom: 1px solid var(--border);
             padding: 60px 20px;
         }
 
@@ -49,7 +50,7 @@
         }
 
         .logo:hover {
-            transform: scale(1.5);
+            transform: scale(1.1);
         }
 
         .container {
@@ -60,7 +61,7 @@
 
         /* Typewriter Container */
         .typewriter-wrapper {
-            height: 40px; /* Prevents layout jump */
+            height: 40px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -69,7 +70,7 @@
 
         #typewriter-text {
             font-size: 28px;
-            font-weight: 800; /* Bolded */
+            font-weight: 800;
             letter-spacing: 0.5px;
             color: var(--black);
             border-right: 3px solid var(--black);
@@ -83,6 +84,29 @@
             50% { border-color: var(--black); }
         }
 
+        /* Location Select Styling (New Feature Integration) */
+        .location-select {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid var(--border);
+        }
+
+        .location-select label {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+
+        .location-select select {
+            padding: 8px;
+            border: 1px solid var(--border);
+            margin-right: 20px;
+            outline: none;
+        }
+
         /* Search Section */
         .search-box {
             background: white;
@@ -91,6 +115,8 @@
             border: none;
             box-shadow: 0 20px 40px rgba(0,0,0,0.08);
             border-radius: 8px;
+            position: relative;
+            z-index: 2;
         }
 
         #question {
@@ -101,10 +127,6 @@
             border-radius: 0;
             margin-bottom: 20px;
             outline: none;
-        }
-
-        #question:focus {
-            border-color: var(--black);
         }
 
         .btn-container {
@@ -120,13 +142,7 @@
             color: var(--white);
             background-color: var(--black);
             border: 1px solid var(--black);
-            cursor: pointer;
             transition: all 0.3s ease;
-        }
-
-        button:hover {
-            background-color: var(--white);
-            color: var(--black);
         }
 
         /* Results Display */
@@ -137,20 +153,17 @@
             display: none;
         }
 
-        #answer.show {
-            display: block;
-        }
+        #answer.show { display: block; }
 
         .company-name {
             font-size: 26px;
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 25px;
+            margin-top: 40px;
+            margin-bottom: 20px;
         }
 
-        .section {
-            margin-bottom: 30px;
-        }
+        .section { margin-bottom: 30px; }
 
         .section-title {
             font-size: 14px;
@@ -163,50 +176,30 @@
             padding-bottom: 5px;
         }
 
-        ul {
-            list-style: none;
-        }
+        ul { list-style: none; }
+        li { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 15px; }
 
-        li {
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 15px;
-        }
+        .loading { text-align: center; font-style: italic; padding: 20px; }
+        .error { border: 1px solid var(--black); padding: 20px; }
 
-        .loading {
-            text-align: center;
-            font-style: italic;
-            padding: 20px;
-        }
-
-        .error {
-            border: 1px solid var(--black);
-            padding: 20px;
-        }
-
+        /* Cursor Styling */
         .cursor {
             pointer-events: none;
             position: fixed;
             width: 20px;
             height: 20px;
-            background-color: var(--black);
+            background-color: white;
             border-radius: 50%;
             z-index: 9999;
-            mix-blend-mode: difference; /* This makes it turn white on black backgrounds */
-            transition: transform 0.3s ease;
+            mix-blend-mode: difference;
+            transition: transform 0.2s ease-out;
             transform: translate(-50%, -50%);
-            background-color: white; /* Contrast color */
         }
 
-        .hover-this {
-            display: inline-block;
-            transition: transform 0.2s outset;
-        }
+        .hover-this { display: inline-block; width: 100%; }
+        .btn-container .hover-this { width: auto; }
 
-/* When the cursor is over the trigger, it scales up */
-        .cursor-active {
-            transform: translate(-50%, -50%) scale(4);
-        }
+        .cursor-active { transform: translate(-50%, -50%) scale(5); }
     </style>
 </head>
 <body>
@@ -215,20 +208,74 @@
         <img src="{{ url_for('static', filename='giv-logo.png') }}" alt="GIV Logo" class="logo">
     </header>
 
-
-
     <div class="container">
         <div class="typewriter-wrapper">
             <h1 id="typewriter-text"></h1>
         </div>
 
-        <div class="search-box">
-                <span class="hover-this" style="width: 100%;">
-                <input type="text" 
-                    id="question" 
-                    placeholder="Enter an organization or opportunity...">
-            </span>
+        <div class="location-select">
+            <label for="state">State:</label>
+            <select id="state">
+                <option value="North Carolina">North Carolina</option>
+                <option value="Alabama">Alabama</option>
+                <option value="Alaska">Alaska</option>
+                <option value="Arizona">Arizona</option>
+                <option value="Arkansas">Arkansas</option>
+                <option value="California">California</option>
+                <option value="Colorado">Colorado</option>
+                <option value="Connecticut">Connecticut</option>
+                <option value="Delaware">Delaware</option>
+                <option value="Florida">Florida</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Hawaii">Hawaii</option>
+                <option value="Idaho">Idaho</option>
+                <option value="Illinois">Illinois</option>
+                <option value="Indiana">Indiana</option>
+                <option value="Iowa">Iowa</option>
+                <option value="Kansas">Kansas</option>
+                <option value="Kentucky">Kentucky</option>
+                <option value="Louisiana">Louisiana</option>
+                <option value="Maine">Maine</option>
+                <option value="Maryland">Maryland</option>
+                <option value="Massachusetts">Massachusetts</option>
+                <option value="Michigan">Michigan</option>
+                <option value="Minnesota">Minnesota</option>
+                <option value="Mississippi">Mississippi</option>
+                <option value="Missouri">Missouri</option>
+                <option value="Montana">Montana</option>
+                <option value="Nebraska">Nebraska</option>
+                <option value="Nevada">Nevada</option>
+                <option value="New Hampshire">New Hampshire</option>
+                <option value="New Jersey">New Jersey</option>
+                <option value="New Mexico">New Mexico</option>
+                <option value="New York">New York</option>
+                <option value="North Dakota">North Dakota</option>
+                <option value="Ohio">Ohio</option>
+                <option value="Oklahoma">Oklahoma</option>
+                <option value="Oregon">Oregon</option>
+                <option value="Pennsylvania">Pennsylvania</option>
+                <option value="Rhode Island">Rhode Island</option>
+                <option value="South Carolina">South Carolina</option>
+                <option value="South Dakota">South Dakota</option>
+                <option value="Tennessee">Tennessee</option>
+                <option value="Texas">Texas</option>
+                <option value="Utah">Utah</option>
+                <option value="Vermont">Vermont</option>
+                <option value="Virginia">Virginia</option>
+                <option value="Washington">Washington</option>
+                <option value="West Virginia">West Virginia</option>
+                <option value="Wisconsin">Wisconsin</option>
+                <option value="Wyoming">Wyoming</option>
+            </select>
 
+            <label for="city">City:</label>
+            <select id="city"></select>
+        </div>
+
+        <div class="search-box">
+            <span class="hover-this">
+                <input type="text" id="question" placeholder="Enter a type of community service...">
+            </span>
             <div class="btn-container">
                 <span class="hover-this">
                     <button onclick="askAI()">Search</button>
@@ -236,31 +283,44 @@
             </div>
         </div>
 
-        <div class="cursor"></div>
-
         <div id="answer"></div>
     </div>
 
+    <div class="cursor"></div>
+
     <script>
-        /** TYPEWRITER CYCLE LOGIC **/
+        /** TYPEWRITER LOGIC **/
         const words = ["Connect.", "Volunteer.", "Make an Impact."];
-        let wordIndex = 0;
-        let charIndex = 0;
-        let isDeleting = false;
+        let wordIndex = 0, charIndex = 0, isDeleting = false;
         const typeTarget = document.getElementById("typewriter-text");
 
+        function type() {
+            const currentWord = words[wordIndex];
+            typeTarget.textContent = isDeleting
+                ? currentWord.substring(0, charIndex - 1)
+                : currentWord.substring(0, charIndex + 1);
+            charIndex += isDeleting ? -1 : 1;
+
+            let typeSpeed = isDeleting ? 50 : 150;
+
+            if (!isDeleting && charIndex === currentWord.length) { typeSpeed = 2000; isDeleting = true; }
+            else if (isDeleting && charIndex === 0) { isDeleting = false; wordIndex = (wordIndex + 1) % words.length; typeSpeed = 500; }
+
+            setTimeout(type, typeSpeed);
+        }
+
+        /** MAGNETIC CURSOR LOGIC **/
         (function () {
             const cursor = document.querySelector('.cursor');
-            const links = document.querySelectorAll('.hover-this');
+            const triggers = document.querySelectorAll('.hover-this');
 
             const editCursor = e => {
-                const { clientX: x, clientY: y } = e;
-                cursor.style.left = x + 'px';
-                cursor.style.top = y + 'px';
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
             };
 
             const animateit = function (e) {
-                const btn = this.querySelector('button');
+                const inner = this.querySelector('button, input');
                 const { offsetX: x, offsetY: y } = e;
                 const { offsetWidth: width, offsetHeight: height } = this;
 
@@ -268,120 +328,144 @@
                 const xMove = x / width * (move * 2) - move;
                 const yMove = y / height * (move * 2) - move;
 
-                btn.style.transform = `translate(${xMove}px, ${yMove}px)`;
+                inner.style.transform = `translate(${xMove}px, ${yMove}px)`;
                 cursor.classList.add('cursor-active');
 
                 if (e.type === 'mouseleave') {
-                    btn.style.transform = '';
+                    inner.style.transform = '';
                     cursor.classList.remove('cursor-active');
                 }
             };
 
-    window.addEventListener('mousemove', editCursor);
-    links.forEach(b => {
-        b.addEventListener('mousemove', animateit);
-        b.addEventListener('mouseleave', animateit);
-    });
-})();
-        
-        function type() {
-            const currentWord = words[wordIndex];
-            
-            if (isDeleting) {
-                typeTarget.textContent = currentWord.substring(0, charIndex - 1);
-                charIndex--;
-            } else {
-                typeTarget.textContent = currentWord.substring(0, charIndex + 1);
-                charIndex++;
-            }
+            window.addEventListener('mousemove', editCursor);
+            triggers.forEach(b => {
+                b.addEventListener('mousemove', animateit);
+                b.addEventListener('mouseleave', animateit);
+            });
+        })();
 
-            let typeSpeed = isDeleting ? 50 : 150;
+        /** LOCATION & PRELOAD LOGIC (Integrated from Peer) **/
+        const stateCities = {
+            "North Carolina": ["Raleigh", "Chapel Hill", "Durham", "Charlotte"],
+            "Alabama": ["Montgomery"], "Alaska": ["Juneau"], "Arizona": ["Phoenix"], "Arkansas": ["Little Rock"],
+            "California": ["Sacramento"], "Colorado": ["Denver"], "Connecticut": ["Hartford"], "Delaware": ["Dover"],
+            "Florida": ["Tallahassee"], "Georgia": ["Atlanta"], "Hawaii": ["Honolulu"], "Idaho": ["Boise"],
+            "Illinois": ["Springfield"], "Indiana": ["Indianapolis"], "Iowa": ["Des Moines"], "Kansas": ["Topeka"],
+            "Kentucky": ["Frankfort"], "Louisiana": ["Baton Rouge"], "Maine": ["Augusta"], "Maryland": ["Annapolis"],
+            "Massachusetts": ["Boston"], "Michigan": ["Lansing"], "Minnesota": ["Saint Paul"], "Mississippi": ["Jackson"],
+            "Missouri": ["Jefferson City"], "Montana": ["Helena"], "Nebraska": ["Lincoln"], "Nevada": ["Carson City"],
+            "New Hampshire": ["Concord"], "New Jersey": ["Trenton"], "New Mexico": ["Santa Fe"], "New York": ["Albany"],
+            "North Dakota": ["Bismarck"], "Ohio": ["Columbus"], "Oklahoma": ["Oklahoma City"], "Oregon": ["Salem"],
+            "Pennsylvania": ["Harrisburg"], "Rhode Island": ["Providence"], "South Carolina": ["Columbia"], "South Dakota": ["Pierre"],
+            "Tennessee": ["Nashville"], "Texas": ["Austin"], "Utah": ["Salt Lake City"], "Vermont": ["Montpelier"],
+            "Virginia": ["Richmond"], "Washington": ["Olympia"], "West Virginia": ["Charleston"], "Wisconsin": ["Madison"], "Wyoming": ["Cheyenne"]
+        };
 
-            if (!isDeleting && charIndex === currentWord.length) {
-                // Pause at the end of the word
-                typeSpeed = 2000;
-                isDeleting = true;
-            } else if (isDeleting && charIndex === 0) {
-                isDeleting = false;
-                wordIndex = (wordIndex + 1) % words.length;
-                typeSpeed = 500;
-            }
+        document.addEventListener("DOMContentLoaded", () => {
+            type();
+            const stateSelect = document.getElementById('state');
+            const citySelect = document.getElementById('city');
 
-            setTimeout(type, typeSpeed);
-        }
+            stateSelect.addEventListener('change', () => {
+                const cities = stateCities[stateSelect.value] || [];
+                citySelect.innerHTML = "";
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city; option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+                citySelect.selectedIndex = 0;
+            });
 
-        // Start the effect on load
-        document.addEventListener("DOMContentLoaded", type);
+            stateSelect.dispatchEvent(new Event('change'));
+            loadDefaultOpportunities();
+        });
 
-
-        /** PRESERVED API LOGIC **/
+        /** API LOGIC (Merged) **/
         async function askAI() {
             const question = document.getElementById('question').value;
+            const state = document.getElementById('state').value;
+            const city = document.getElementById('city').value;
             const answerDiv = document.getElementById('answer');
-            
+
             if (!question) {
                 answerDiv.className = 'show error';
                 answerDiv.innerHTML = 'Please enter a search query.';
                 return;
             }
-            
+
             answerDiv.className = 'show loading';
             answerDiv.innerHTML = 'Retrieving data...';
-            
+
             try {
                 const response = await fetch('/ask', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question: question })
+                    body: JSON.stringify({ question: `${question} near ${city}, ${state}` })
                 });
-                
                 const result = await response.json();
-                
-                if (result.success && result.data) {
-                    displayStructuredData(result.data);
-                } else if (result.success && result.answer) {
+                if (result.success && result.data) displayStructuredData(result.data);
+                else if (result.success && result.answer) {
                     answerDiv.className = 'show';
-                    answerDiv.innerHTML = `<pre style="white-space: pre-wrap; font-family: inherit;">${result.answer}</pre>`;
-                } else {
-                    answerDiv.className = 'show error';
-                    answerDiv.innerHTML = 'Error: ' + (result.error || 'Unknown error');
+                    answerDiv.innerHTML = result.answer;
                 }
+                else answerDiv.innerHTML = 'Error: ' + (result.error || 'Unknown error');
             } catch (error) {
                 answerDiv.className = 'show error';
-                answerDiv.innerHTML = 'Connection Error: Please try again later.';
+                answerDiv.innerHTML = 'Connection Error.';
             }
         }
-        
+
+        async function loadDefaultOpportunities() {
+            const state = document.getElementById('state').value;
+            const city = document.getElementById('city').value;
+            const answerDiv = document.getElementById('answer');
+            const question = `top community service opportunities in ${city}, ${state}`;
+
+            answerDiv.className = 'show loading';
+            answerDiv.innerHTML = 'Loading opportunities near you...';
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question })
+                });
+                const result = await response.json();
+                if (result.success && result.data) displayStructuredData(result.data);
+                else if (result.success && result.answer) answerDiv.innerHTML = result.answer;
+            } catch (error) {
+                answerDiv.innerHTML = 'Could not load opportunities.';
+            }
+        }
+
         function displayStructuredData(data) {
             const answerDiv = document.getElementById('answer');
             answerDiv.className = 'show';
-            
-            let html = `
-                <div class="company-name">${data.company_name || 'Organization Details'}</div>
-                <div class="section">
-                    <div class="section-title">Location</div>
-                    <ul>${data.location.map(loc => `<li>${loc}</li>`).join('')}</ul>
-                </div>
-                <div class="section">
-                    <div class="section-title">Registration Process</div>
-                    <ul>${data.signup_process.map(step => `<li>${step}</li>`).join('')}</ul>
-                </div>
-                <div class="section">
-                    <div class="section-title">Contact</div>
-                    <ul>${data.contact_info.map(info => `<li>${info}</li>`).join('')}</ul>
-                </div>
-                <div class="section">
-                    <div class="section-title">Details</div>
-                    <ul>${data.additional_info.map(info => `<li>${info}</li>`).join('')}</ul>
-                </div>
-            `;
-            
+            let html = "";
+            const opportunities = data.opportunities || [data]; // Handle both list and single object
+            opportunities.forEach(op => {
+                html += `
+                    <div class="company-name">${op.company_name || 'Organization'}</div>
+                    <div class="section">
+                        <div class="section-title">Location</div>
+                        <ul>${(op.location || []).map(loc => `<li>${loc}</li>`).join('')}</ul>
+                    </div>
+                    <div class="section">
+                        <div class="section-title">Registration</div>
+                        <ul>${(op.signup_process || []).map(step => `<li>${step}</li>`).join('')}</ul>
+                    </div>
+                    <div class="section">
+                        <div class="section-title">Contact</div>
+                        <ul>${(op.contact_info || []).map(info => `<li>${info}</li>`).join('')}</ul>
+                    </div>
+                    <hr style="margin: 40px 0; border: 0; border-top: 1px solid #eee;">
+                `;
+            });
             answerDiv.innerHTML = html;
         }
-        
-        document.getElementById('question').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') askAI();
-        });
+
+        document.getElementById('question').addEventListener('keypress', (e) => { if (e.key === 'Enter') askAI(); });
     </script>
 </body>
 </html>
