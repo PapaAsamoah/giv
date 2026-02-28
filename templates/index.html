@@ -10,7 +10,7 @@
             --white: #ffffff;
             --slate: #333333;
             --light-grey: #f4f4f4;
-            --header-shade: #f9f9f9; /* Slight light shade for logo div */
+            --header-shade: #f9f9f9; 
             --border: #dddddd;
         }
 
@@ -30,13 +30,20 @@
         /* Shaded Header for Logo */
         header {
             background-color: var(--header-shade);
-            border-bottom: 1px solid var(--border);
-            padding: 30px 0;
+            border-bottom: 5px solid var(--border);
+            padding: 5px 0;
             text-align: center;
         }
 
         .logo {
             width: 100px;
+            display: block;
+            margin: 0 auto;
+            filter: grayscale(100%);
+        }
+
+        .logo {
+            width: 200px; /* Increase this number to your liking */
             display: block;
             margin: 0 auto;
             filter: grayscale(100%);
@@ -48,31 +55,24 @@
             padding: 0 20px;
         }
 
-        /* Bold Typewriter Effect */
+        /* Typewriter Container */
         .typewriter-wrapper {
+            height: 40px; /* Prevents layout jump */
             display: flex;
             justify-content: center;
+            align-items: center;
             margin-bottom: 40px;
         }
 
-        .typewriter {
+        #typewriter-text {
             font-size: 28px;
             font-weight: 800; /* Bolded */
             letter-spacing: 0.5px;
             color: var(--black);
-            overflow: hidden;
             border-right: 3px solid var(--black);
+            padding-right: 5px;
             white-space: nowrap;
-            margin: 0 auto;
-            width: 0;
-            animation: 
-                typing 3.5s steps(40, end) forwards,
-                blink-caret .75s step-end infinite;
-        }
-
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
+            animation: blink-caret .75s step-end infinite;
         }
 
         @keyframes blink-caret {
@@ -123,7 +123,7 @@
             color: var(--black);
         }
 
-        /* Results Logic remains the same */
+        /* Results Display */
         #answer {
             margin-top: 50px;
             padding-top: 30px;
@@ -182,12 +182,12 @@
 <body>
 
     <header>
-        <img src="giv-logo.png" alt="giv" class="logo">
+        <img src="{{ url_for('static', filename='giv-logo.png') }}" alt="GIV Logo" class="logo">
     </header>
 
     <div class="container">
         <div class="typewriter-wrapper">
-            <h1 class="typewriter">Connect. Volunteer. Make an Impact.</h1>
+            <h1 id="typewriter-text"></h1>
         </div>
 
         <div class="search-box">
@@ -203,7 +203,44 @@
     </div>
 
     <script>
-        /* Preserving API structure */
+        /** TYPEWRITER CYCLE LOGIC **/
+        const words = ["Connect.", "Volunteer.", "Make an Impact."];
+        let wordIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typeTarget = document.getElementById("typewriter-text");
+
+        function type() {
+            const currentWord = words[wordIndex];
+            
+            if (isDeleting) {
+                typeTarget.textContent = currentWord.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typeTarget.textContent = currentWord.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeed = isDeleting ? 50 : 150;
+
+            if (!isDeleting && charIndex === currentWord.length) {
+                // Pause at the end of the word
+                typeSpeed = 2000;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                wordIndex = (wordIndex + 1) % words.length;
+                typeSpeed = 500;
+            }
+
+            setTimeout(type, typeSpeed);
+        }
+
+        // Start the effect on load
+        document.addEventListener("DOMContentLoaded", type);
+
+
+        /** PRESERVED API LOGIC **/
         async function askAI() {
             const question = document.getElementById('question').value;
             const answerDiv = document.getElementById('answer');
