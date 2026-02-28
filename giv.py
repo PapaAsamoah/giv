@@ -67,7 +67,7 @@ Only return JSON, nothing else.
         
         # Parse JSON
         try:
-            data = json.loads("opportunities")
+            data = json.loads(response_text)
             
             print("✅ Successfully parsed JSON:")
             print(json.dumps(data, indent=2))
