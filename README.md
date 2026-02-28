@@ -16,7 +16,8 @@
    python3 app.py
 ```
 
-***You may run into the issue of the program not being able to find your API key. If this occurs, do to terminal and run export GEMINI_API_KEY=<yourpasskey>***
+***You may run into the issue of the program not being able to find your API key. If this occurs, do to terminal and run export GEMINI_API_KEY="yourpasskey"***
+
 
 
 
