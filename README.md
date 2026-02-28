@@ -1,5 +1,8 @@
-# Make your own API key of you want to use website from the repo
-## Setup
+# giv
+## A website that provides easy access to local volunteering organizations.
+### Make your own API key of you want to use website from the repo
+
+### Setup
 1. Clone this repo
 2. Create `.env` file
 3. Get your Gemini API key from https://aistudio.google.com/app/apikey
@@ -12,4 +15,5 @@
 ```bash
    python3 app.py
 ```
+
 
