@@ -7,7 +7,7 @@
 2. Create `.env` file
 3. Get your Gemini API key from https://aistudio.google.com/app/apikey
 4. Add your key to `.env` formatted like GEMINI_API_KEY=<your_key_here>
-6. Install dependencies:
+5. Install dependencies:
 ```bash
    pip3 install flask python-dotenv google-genai
 ```
@@ -15,5 +15,8 @@
 ```bash
    python3 app.py
 ```
+
+***You may run into the issue of the program not being able to find your API key. If this occurs, do to terminal and run export GEMINI_API_KEY=<yourpasskey>***
+
 
 
