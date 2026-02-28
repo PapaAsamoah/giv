@@ -1,8 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>giv: Community Service Finder</title>
     <style>
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --slate: #333333;
+            --light-grey: #f4f4f4;
+            --header-shade: #f9f9f9; /* Slight light shade for logo div */
+            --border: #dddddd;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -10,213 +21,201 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: var(--white);
+            color: var(--black);
+            line-height: 1.6;
         }
 
-        .logo {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 120px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
+        /* Shaded Header for Logo */
+        header {
+            background-color: var(--header-shade);
+            border-bottom: 1px solid var(--border);
+            padding: 30px 0;
             text-align: center;
         }
 
+        .logo {
+            width: 100px;
+            display: block;
+            margin: 0 auto;
+            filter: grayscale(100%);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        /* Bold Typewriter Effect */
+        .typewriter-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
         .typewriter {
-            color: white;
-            font-size: 2.5em;
-            font-weight: bold;
-            margin-bottom: 30px;
-            white-space: nowrap;
+            font-size: 28px;
+            font-weight: 800; /* Bolded */
+            letter-spacing: 0.5px;
+            color: var(--black);
             overflow: hidden;
-            border-right: 0.15em solid #fff;
-            animation: typing 3s steps(40, end), blink 0.75s step-end infinite;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            border-right: 3px solid var(--black);
+            white-space: nowrap;
+            margin: 0 auto;
+            width: 0;
+            animation: 
+                typing 3.5s steps(40, end) forwards,
+                blink-caret .75s step-end infinite;
         }
 
         @keyframes typing {
-            from { width: 0; }
-            to { width: 100%; }
+            from { width: 0 }
+            to { width: 100% }
         }
 
-        @keyframes blink {
-            50% { border-color: transparent; }
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--black); }
         }
 
+        /* Search Section */
         .search-box {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            margin-bottom: 30px;
+            background: var(--light-grey);
+            padding: 40px;
+            border: 1px solid var(--border);
         }
 
         #question {
             width: 100%;
             padding: 15px;
             font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            transition: border-color 0.3s;
+            border: 1px solid var(--border);
+            border-radius: 0;
+            margin-bottom: 20px;
+            outline: none;
         }
 
         #question:focus {
-            outline: none;
-            border-color: #667eea;
+            border-color: var(--black);
+        }
+
+        .btn-container {
+            text-align: center;
         }
 
         button {
-            width: 100%;
-            padding: 15px;
-            font-size: 18px;
+            padding: 12px 40px;
+            font-size: 14px;
             font-weight: bold;
-            color: white;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--white);
+            background-color: var(--black);
+            border: 1px solid var(--black);
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s ease;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            background-color: var(--white);
+            color: var(--black);
         }
 
-        button:active {
-            transform: translateY(0);
-        }
-
+        /* Results Logic remains the same */
         #answer {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid var(--black);
             display: none;
         }
 
         #answer.show {
             display: block;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .company-name {
-            font-size: 2em;
-            color: #667eea;
-            margin-bottom: 20px;
+            font-size: 26px;
             font-weight: bold;
-        }
-
-        .section {
+            text-transform: uppercase;
             margin-bottom: 25px;
         }
 
-        .section-title {
-            font-size: 1.3em;
-            color: #333;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .section {
+            margin-bottom: 30px;
         }
 
-        .section-title::before {
-            content: '';
-            width: 4px;
-            height: 24px;
-            background: #667eea;
-            border-radius: 2px;
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            color: var(--slate);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 5px;
         }
 
         ul {
             list-style: none;
-            padding-left: 0;
         }
 
         li {
-            padding: 8px 0;
-            padding-left: 25px;
-            position: relative;
-            color: #555;
-            line-height: 1.6;
-        }
-
-        li::before {
-            content: '•';
-            position: absolute;
-            left: 10px;
-            color: #764ba2;
-            font-weight: bold;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
         }
 
         .loading {
             text-align: center;
-            color: #667eea;
-            font-size: 1.2em;
-            padding: 40px;
+            font-style: italic;
+            padding: 20px;
         }
 
         .error {
-            background: #fee;
-            color: #c33;
+            border: 1px solid var(--black);
             padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #c33;
         }
     </style>
 </head>
 <body>
-    <!-- Logo -->
-    <img src="giv-logo.png" alt="GIV Logo" class="logo">
+
+    <header>
+        <img src="giv-logo.png" alt="giv" class="logo">
+    </header>
 
     <div class="container">
-        <!-- Typewriter headline -->
-        <div class="typewriter">Connect. Volunteer. Make an Impact.</div>
+        <div class="typewriter-wrapper">
+            <h1 class="typewriter">Connect. Volunteer. Make an Impact.</h1>
+        </div>
 
-        <!-- Search box -->
         <div class="search-box">
             <input type="text" 
                    id="question" 
-                   placeholder="e.g., Red Cross volunteer opportunities near me">
-            <button onclick="askAI()">🔍 Search Opportunities</button>
+                   placeholder="Enter an organization or opportunity...">
+            <div class="btn-container">
+                <button onclick="askAI()">Search</button>
+            </div>
         </div>
 
         <div id="answer"></div>
     </div>
 
     <script>
+        /* Preserving API structure */
         async function askAI() {
             const question = document.getElementById('question').value;
             const answerDiv = document.getElementById('answer');
             
             if (!question) {
                 answerDiv.className = 'show error';
-                answerDiv.innerHTML = 'Please enter a search query!';
+                answerDiv.innerHTML = 'Please enter a search query.';
                 return;
             }
             
             answerDiv.className = 'show loading';
-            answerDiv.innerHTML = '🔄 Searching for opportunities...';
+            answerDiv.innerHTML = 'Retrieving data...';
             
             try {
                 const response = await fetch('/ask', {
@@ -231,14 +230,14 @@
                     displayStructuredData(result.data);
                 } else if (result.success && result.answer) {
                     answerDiv.className = 'show';
-                    answerDiv.innerHTML = `<pre>${result.answer}</pre>`;
+                    answerDiv.innerHTML = `<pre style="white-space: pre-wrap; font-family: inherit;">${result.answer}</pre>`;
                 } else {
                     answerDiv.className = 'show error';
-                    answerDiv.innerHTML = '❌ Error: ' + (result.error || 'Unknown error');
+                    answerDiv.innerHTML = 'Error: ' + (result.error || 'Unknown error');
                 }
             } catch (error) {
                 answerDiv.className = 'show error';
-                answerDiv.innerHTML = '❌ Network Error: ' + error;
+                answerDiv.innerHTML = 'Connection Error: Please try again later.';
             }
         }
         
@@ -247,34 +246,22 @@
             answerDiv.className = 'show';
             
             let html = `
-                <div class="company-name">${data.company_name || 'Organization'}</div>
-                
+                <div class="company-name">${data.company_name || 'Organization Details'}</div>
                 <div class="section">
-                    <div class="section-title">📍 Location</div>
-                    <ul>
-                        ${data.location.map(loc => `<li>${loc}</li>`).join('')}
-                    </ul>
+                    <div class="section-title">Location</div>
+                    <ul>${data.location.map(loc => `<li>${loc}</li>`).join('')}</ul>
                 </div>
-                
                 <div class="section">
-                    <div class="section-title">✍️ How to Sign Up</div>
-                    <ul>
-                        ${data.signup_process.map(step => `<li>${step}</li>`).join('')}
-                    </ul>
+                    <div class="section-title">Registration Process</div>
+                    <ul>${data.signup_process.map(step => `<li>${step}</li>`).join('')}</ul>
                 </div>
-                
                 <div class="section">
-                    <div class="section-title">📞 Contact Information</div>
-                    <ul>
-                        ${data.contact_info.map(info => `<li>${info}</li>`).join('')}
-                    </ul>
+                    <div class="section-title">Contact</div>
+                    <ul>${data.contact_info.map(info => `<li>${info}</li>`).join('')}</ul>
                 </div>
-                
                 <div class="section">
-                    <div class="section-title">ℹ️ Additional Information</div>
-                    <ul>
-                        ${data.additional_info.map(info => `<li>${info}</li>`).join('')}
-                    </ul>
+                    <div class="section-title">Details</div>
+                    <ul>${data.additional_info.map(info => `<li>${info}</li>`).join('')}</ul>
                 </div>
             `;
             
@@ -282,9 +269,7 @@
         }
         
         document.getElementById('question').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                askAI();
-            }
+            if (e.key === 'Enter') askAI();
         });
     </script>
 </body>
