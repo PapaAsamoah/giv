@@ -1,0 +1,269 @@
+<!--From Claude-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Community Service Finder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .search-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+        
+        #question {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        #question:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #answer {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: none;
+        }
+        
+        #answer.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .company-name {
+            font-size: 2em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: #667eea;
+            border-radius: 2px;
+        }
+        
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        li::before {
+            content: '•';
+            position: absolute;
+            left: 10px;
+            color: #764ba2;
+            font-weight: bold;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.2em;
+            padding: 40px;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #c33;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Community Service Finder</h1>
+        
+        <div class="search-box">
+            <input type="text" 
+                   id="question" 
+                   placeholder="e.g., Red Cross volunteer opportunities near me">
+            <button onclick="askAI()">🔍 Search Opportunities</button>
+        </div>
+        
+        <div id="answer"></div>
+    </div>
+
+    <script>
+        async function askAI() {
+            const question = document.getElementById('question').value;
+            const answerDiv = document.getElementById('answer');
+            
+            if (!question) {
+                answerDiv.className = 'show error';
+                answerDiv.innerHTML = 'Please enter a search query!';
+                return;
+            }
+            
+            answerDiv.className = 'show loading';
+            answerDiv.innerHTML = '🔄 Searching for opportunities...';
+            
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question: question })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    displayStructuredData(result.data);
+                } else if (result.success && result.answer) {
+                    // Fallback to plain text
+                    answerDiv.className = 'show';
+                    answerDiv.innerHTML = `<pre>${result.answer}</pre>`;
+                } else {
+                    answerDiv.className = 'show error';
+                    answerDiv.innerHTML = '❌ Error: ' + (result.error || 'Unknown error');
+                }
+            } catch (error) {
+                answerDiv.className = 'show error';
+                answerDiv.innerHTML = '❌ Network Error: ' + error;
+            }
+        }
+        
+        function displayStructuredData(data) {
+            const answerDiv = document.getElementById('answer');
+            answerDiv.className = 'show';
+            
+            let html = `
+                <div class="company-name">${data.company_name || 'Organization'}</div>
+                
+                <div class="section">
+                    <div class="section-title">📍 Location</div>
+                    <ul>
+                        ${data.location.map(loc => `<li>${loc}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">✍️ How to Sign Up</div>
+                    <ul>
+                        ${data.signup_process.map(step => `<li>${step}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">📞 Contact Information</div>
+                    <ul>
+                        ${data.contact_info.map(info => `<li>${info}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">ℹ️ Additional Information</div>
+                    <ul>
+                        ${data.additional_info.map(info => `<li>${info}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            answerDiv.innerHTML = html;
+        }
+        
+        // Allow Enter key to submit
+        document.getElementById('question').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                askAI();
+            }
+        });
+    </script>
+</body>
+</html>
